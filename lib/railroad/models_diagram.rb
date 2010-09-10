@@ -24,7 +24,10 @@ class ModelsDiagram < AppDiagram
     files += Dir.glob("vendor/plugins/**/app/models/*.rb") if @options.plugins_models    
     files -= @options.exclude
     files.each do |f| 
-      process_class extract_class_name(f).constantize
+      contents = File.new(f).read
+      class_name = contents.scan(/class\s(.*)\s</).first.to_s
+      STDERR.print "FILE: #{f} CLASS_NAME: #{class_name.to_s}\n" if @options.verbose
+      process_class class_name.constantize if class_name.present?
     end
   end 
 
@@ -125,7 +128,7 @@ class ModelsDiagram < AppDiagram
     STDERR.print "\t\tProcessing model association #{assoc.name.to_s}\n" if @options.verbose
 
     # Skip "belongs_to" associations
-    return if assoc.macro.to_s == 'belongs_to'
+    # return if assoc.macro.to_s == 'belongs_to'
 
     # Only non standard association names needs a label
     
