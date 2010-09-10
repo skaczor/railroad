@@ -10,7 +10,7 @@ require 'railroad/app_diagram'
 class ModelsDiagram < AppDiagram
 
   def initialize(options)
-    #options.exclude.map! {|e| "app/models/" + e}
+    options.exclude.map! {|e| "app/models/" + e.strip}
     super options 
     @graph.diagram_type = 'Models'
     # Processed habtm associations
