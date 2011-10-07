@@ -15,6 +15,7 @@ class OptionsStruct < OpenStruct
     init_options = { :all => false,
                      :brief => false,
                      :exclude => [],
+                     :include => [],
                      :inheritance => false,
                      :join => false,
                      :label => false,
@@ -44,6 +45,9 @@ class OptionsStruct < OpenStruct
       end
       opts.on("-e", "--exclude file1[,fileN]", Array, "Exclude given files") do |list|
         self.exclude = list
+      end
+      opts.on("-f", "--files file1[,fileN]", Array, "Include only given files") do |list|
+        self.include = list
       end
       opts.on("-i", "--inheritance", "Include inheritance relations") do |i|
         self.inheritance = i

@@ -22,23 +22,25 @@ class AasmDiagram < AppDiagram
   # Process model files
   def generate
     STDERR.print "Generating AASM diagram\n" if @options.verbose
-    files = Dir.glob("app/models/**/*.rb") 
-    files += Dir.glob("vendor/plugins/**/app/models/*.rb") if @options.plugins_models
-    files -= @options.exclude
     files.each do |f| 
       process_class extract_class_name(f).constantize
     end
   end
   
   private
-  
+  def files
+    if @options.include.any?
+      @options.include.map{ |file| File.join("app/models", file) }
+    else
+      f = Dir.glob("app/models/**/*.rb") 
+      f += Dir.glob("vendor/plugins/**/app/models/*.rb") if @options.plugins_models
+      f -= @options.exclude
+    end
+  end  
   # Load model classes
   def load_classes
     begin
       disable_stdout
-      files = Dir.glob("app/models/**/*.rb")
-      files += Dir.glob("vendor/plugins/**/app/models/*.rb") if @options.plugins_models
-      files -= @options.exclude                  
       files.each {|m| require m }
       enable_stdout
     rescue LoadError
