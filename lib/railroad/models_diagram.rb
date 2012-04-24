@@ -20,12 +20,9 @@ class ModelsDiagram < AppDiagram
   # Process model files
   def generate
     STDERR.print "Generating models diagram\n" if @options.verbose
-    files = Dir.glob("app/models/**/*.rb")
-    files += Dir.glob("vendor/plugins/**/app/models/*.rb") if @options.plugins_models    
-    files -= @options.exclude
     files.each do |f| 
       contents = File.new(f).read
-      class_name = contents.scan(/class\s(.*)\s</).first.to_s
+      class_name = contents.scan(/class\s(.*)\s</).flatten.first.to_s
       STDERR.print "FILE: #{f} CLASS_NAME: #{class_name.to_s}\n" if @options.verbose
       process_class class_name.constantize if class_name.present?
     end
@@ -34,12 +31,18 @@ class ModelsDiagram < AppDiagram
   private
 
   # Load model classes
+  def files
+    if @options.include.any?
+      @options.include.map{ |file| File.join("app/models", file) }
+    else
+      f = Dir.glob("app/models/**/*.rb") 
+      f += Dir.glob("vendor/plugins/**/app/models/*.rb") if @options.plugins_models
+      f -= @options.exclude
+    end
+  end  
   def load_classes
     begin
       disable_stdout
-      files = Dir.glob("app/models/**/*.rb")
-      files += Dir.glob("vendor/plugins/**/app/models/*.rb") if @options.plugins_models
-      files -= @options.exclude
       files.each {|m| require m }
       enable_stdout
     rescue LoadError
